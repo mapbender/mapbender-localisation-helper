@@ -1,7 +1,7 @@
 # Mapbender Locale Exporter
 PHPStorm extension to quickly localise strings.
 
-Check wiki for an installable jar.
+Installable Jar is available at https://files.wheregroup.com/s/63SxXCcLDq6rJJs
 
 ## Usage
 - Select a hard-coded string in a PHP, JS or twig file.
