@@ -33,5 +33,12 @@
             <add-to-group group-id="ToolsMenu" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl NUMPAD1"/>
         </action>
+
+        <action id="com.wheregroup.mapbenderlocalisationhelper.ModifyTranslationAction"
+                class="com.wheregroup.mapbenderlocalisationhelper.ModifyTranslationAction" text="Modify Translation"
+                description="Edits the translations for a selected key">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl NUMPAD2"/>
+        </action>
     </actions>
 </idea-plugin>

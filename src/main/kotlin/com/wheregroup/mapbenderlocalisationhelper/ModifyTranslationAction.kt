@@ -8,8 +8,8 @@ import com.intellij.openapi.command.WriteCommandAction
  * Expects a hardcoded string in a js file, twig template or php file to be selected.
  * Creates a translation key for the hardcoded strings and adds entries in the translation files.
  */
-class ExtractTranslationAction : BaseAction() {
-
+class ModifyTranslationAction : BaseAction() {
+    // yaml formatting options
     override fun actionPerformed(event: AnActionEvent) {
         val editor = event.getData(CommonDataKeys.EDITOR) ?: return
         val project = event.getData(CommonDataKeys.PROJECT) ?: return
@@ -17,7 +17,7 @@ class ExtractTranslationAction : BaseAction() {
         val document = editor.document
 
         if (!editor.selectionModel.hasSelection()) {
-            return showMessage(editor, "Keine Auswahl getroffen", "Wähle den zu extrahierenden Text zunächst aus")
+            return showMessage(editor, "Keine Auswahl getroffen", "Wähle den translation-String zunächst aus")
         }
 
         val primaryCaret = editor.caretModel.primaryCaret
@@ -34,34 +34,38 @@ class ExtractTranslationAction : BaseAction() {
         val languages = getLanguages(file)
         val fileLocation = languages.firstOrNull { it.identifier == "en" }?.location
         if (fileLocation === null) {
-            return showMessage(editor, "Outside translation context", "Utility can only be used in a mapbender module with translation files")
+            return showMessage(
+                editor,
+                "Outside translation context",
+                "Utility can only be used in a mapbender module with translation files"
+            )
         }
-        val keys = getKeys(fileLocation)
 
-        var prepopulatedString = ""
+        val mappings = languages.map { language ->
+            println(language.identifier + ": " + language.location)
+            Pair(language, findValue(language.location, selection))
+        }
 
-        val dialog = ExtractTranslationDialog(project, languages, keys, prepopulatedString, selection) { data ->
-            WriteCommandAction.runWriteCommandAction(project) {
-                // depending on which file we are in, add code to resolve the translation key
-                val replacement = when (file.extension) {
-                    "js" -> "Mapbender.trans('" + data.key + "')"
-                    "twig", "html.twig", "html" -> "{{ '" + data.key + "' | trans }}"
-                    else -> quoteChar + data.key + quoteChar
+        val dialog = ModifyTranslationDialog(project, selection, mappings) { data ->
+            data.translations.forEach { entry ->
+                if (selection == data.key) {
+                    addOrRemoveKey(entry.key.location, data.key, entry.value)
+                } else {
+                    addOrRemoveKeys(entry.key.location, mapOf(
+                        Pair(data.key, entry.value),
+                        Pair(selection, null),
+                    ))
                 }
-
-                // replace the selected text by the entered key
-                document.replaceString(start, end, replacement)
-                val split = data.key.split(".")
-                prepopulatedString = split.subList(0, split.size - 1).joinToString(".")
-                if (prepopulatedString.isNotBlank()) prepopulatedString += "."
             }
 
-            data.translations.forEach { entry ->
-                addOrRemoveKey(entry.key.location, data.key, entry.value)
+            if (selection != data.key) {
+                WriteCommandAction.runWriteCommandAction(project) {
+                    val replacement = quoteChar + data.key + quoteChar
+                    document.replaceString(start, end, replacement)
+                }
             }
         }
         dialog.show()
+
     }
-
-
 }
