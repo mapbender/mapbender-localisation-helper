@@ -5,16 +5,20 @@ plugins {
 }
 
 group = "com.wheregroup"
-version = "1.0.2"
+version = "1.1.0"
 
 repositories {
   mavenCentral()
 }
 
+dependencies {
+  implementation("org.json:json:20240303")
+}
+
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-  version.set("2023.2.6")
+  version.set("2024.1")
   type.set("PS") // Target IDE Platform
 
   plugins.set(listOf("yaml"))
@@ -37,8 +41,8 @@ tasks {
   }
 
   patchPluginXml {
-    sinceBuild.set("232")
-    untilBuild.set("251.*")
+    sinceBuild.set("241")
+    untilBuild.set("261.*")
   }
 
   signPlugin {

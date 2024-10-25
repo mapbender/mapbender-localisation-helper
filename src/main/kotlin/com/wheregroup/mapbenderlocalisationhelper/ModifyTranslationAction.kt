@@ -42,7 +42,6 @@ class ModifyTranslationAction : BaseAction() {
         }
 
         val mappings = languages.map { language ->
-            println(language.identifier + ": " + language.location)
             Pair(language, findValue(language.location, selection))
         }
 
